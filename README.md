@@ -12,7 +12,7 @@ Rust service for M League statistics.
 
 ### crawl paifu data
 
-crawl public paifu data from official website. paifu files will be stored
+crawl public paifu data from official website. paifu files will be stored in `.data/`.
 
 ```shell
 cargo run -p crawler
