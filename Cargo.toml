@@ -1,2 +1,2 @@
 [workspace]
-members = ["crawler", "api"]
+members = ["crawler", "api", "migration"]
