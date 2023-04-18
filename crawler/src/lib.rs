@@ -14,6 +14,7 @@ use std::{
 };
 
 mod password;
+pub use models::UMDGameItem;
 
 const GAME_DATA_REG_STR: &str = r"UMP_PLAYER.init\(true, true, '(.+)', autoplay\);";
 const SEASON_LIST: [&str; 5] = [
