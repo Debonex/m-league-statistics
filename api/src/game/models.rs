@@ -9,6 +9,8 @@ pub struct Game {
     pub bon: u32,
     pub richibo: u32,
     pub game_pros: Vec<GamePro>,
+    pub dora: Vec<Tile>,
+    pub dora_pointer: Vec<Tile>,
 }
 
 impl Game {
@@ -21,6 +23,8 @@ impl Game {
             bon: 0,
             richibo: 0,
             game_pros: Vec::new(),
+            dora: Vec::with_capacity(4),
+            dora_pointer: Vec::with_capacity(4),
         }
     }
 
@@ -29,6 +33,8 @@ impl Game {
     }
 
     pub fn reset_tiles(&mut self) {
+        self.dora.clear();
+        self.dora_pointer.clear();
         self.game_pros.iter_mut().for_each(|pro| pro.reset_tiles())
     }
 }
@@ -66,6 +72,15 @@ impl GamePro {
 
     pub fn tsumo(&mut self, tile: Tile) {
         self.tiles.tsumo(tile)
+    }
+
+    pub fn sute(&mut self, tile: &Tile, tsumogiri: bool) {
+        self.tiles.sute(tile, tsumogiri)
+    }
+
+    pub fn furo(&mut self, tiles: Vec<Tile>) {
+        self.tiles.furo(tiles);
+        self.status = Status::Furo
     }
 }
 
@@ -135,9 +150,24 @@ impl TryFrom<&str> for Wind {
 pub struct Tiles {
     pub sute: Vec<SuteTile>,
     pub tehai: Vec<Tile>,
+    pub furo: Vec<Vec<Tile>>,
 }
 
 impl Tiles {
+    pub fn new() -> Self {
+        Tiles {
+            sute: Vec::with_capacity(24),
+            tehai: Vec::with_capacity(14),
+            furo: Vec::with_capacity(4),
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.sute.clear();
+        self.tehai.clear();
+        self.furo.clear();
+    }
+
     pub fn tsumo(&mut self, tile: Tile) {
         self.tehai.push(tile)
     }
@@ -150,6 +180,10 @@ impl Tiles {
                 tile: removed_tile,
             })
         }
+    }
+
+    fn furo(&mut self, tiles: Vec<Tile>) {
+        self.furo.push(tiles)
     }
 
     pub fn count_dora(&self, dora: &[Tile]) -> usize {
@@ -209,18 +243,4 @@ impl Display for TileError {
 pub struct SuteTile {
     tsumogiri: bool,
     tile: Tile,
-}
-
-impl Tiles {
-    pub fn new() -> Self {
-        Tiles {
-            sute: Vec::with_capacity(24),
-            tehai: Vec::with_capacity(14),
-        }
-    }
-
-    pub fn reset(&mut self) {
-        self.sute.clear();
-        self.tehai.clear();
-    }
 }

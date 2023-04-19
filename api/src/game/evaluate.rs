@@ -1,4 +1,4 @@
-use super::models::Game;
+use super::models::{Game, Status, Tile};
 use crate::game::models::GamePro;
 use crawler::UMDGameItem;
 
@@ -49,20 +49,54 @@ pub fn evaluate(items: &[UMDGameItem], game_id: &str) -> Result<Game, ()> {
                 });
         } else if cmd == "haipai" {
             if let Some(pro) = game.get_pro_mut(item.args[0].as_str()) {
-                item.args[1]
-                    .as_bytes()
-                    .chunks(2)
-                    .map_while(|bytes| std::str::from_utf8(bytes).ok())
-                    .for_each(|s| pro.tsumo(s.try_into().unwrap()));
+                gen_tiles(&item.args[1])
+                    .into_iter()
+                    .for_each(|tile| pro.tsumo(tile));
             }
         } else if cmd == "tsumo" {
             if let Some(pro) = game.get_pro_mut(item.args[0].as_str()) {
                 pro.tsumo(item.args[2].as_str().try_into().unwrap())
             }
         } else if cmd == "sutehai" {
-            // TODO sutehai
+            if let Some(pro) = game.get_pro_mut(item.args[0].as_str()) {
+                let sute_type = item.args[2].as_str();
+                pro.sute(
+                    &item.args[1].as_str().try_into().unwrap(),
+                    sute_type == "tsumogiri",
+                );
+
+                if sute_type == "richi" {
+                    pro.status = Status::Richi;
+                }
+            }
+        } else if cmd == "dora" {
+            game.dora.push(item.args[0].as_str().try_into().unwrap());
+            game.dora_pointer
+                .push(item.args[1].as_str().try_into().unwrap());
+        } else if cmd == "say" {
+            let say_type = item.args[1].as_str();
+            if say_type == "chi" || say_type == "pon" || (say_type == "kan" && item.args.len() > 2)
+            {
+                if let Some(pro) = game.get_pro_mut(&item.args[0]) {
+                    let mut tiles = gen_tiles(&item.args[1][1..item.args[1].len() - 1]);
+                    tiles.push(item.args[2].as_str().try_into().unwrap());
+                    pro.furo(tiles);
+                }
+            }
         }
     }
 
     Ok(game)
+}
+
+fn gen_tiles(tiles_str: &str) -> Vec<Tile> {
+    let mut res = Vec::new();
+    tiles_str.as_bytes().chunks(2).for_each(|bytes| {
+        if let Ok(tile_str) = std::str::from_utf8(bytes) {
+            if let Ok(tile) = TryInto::<Tile>::try_into(tile_str) {
+                res.push(tile)
+            }
+        }
+    });
+    res
 }
