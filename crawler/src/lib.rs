@@ -13,6 +13,10 @@ use std::{
     time::Instant,
 };
 
+use crate::fix::fix_all;
+
+mod fix;
+mod models;
 mod password;
 pub use models::UMDGameItem;
 
@@ -75,6 +79,8 @@ pub async fn start_crawl(data_dir: &str) {
         .buffer_unordered(10)
         .collect::<Vec<_>>()
         .await;
+
+    fix_all(data_dir);
 
     let dur = instant.elapsed().as_secs_f64();
     info!("Crawling finished in {} s.", dur);

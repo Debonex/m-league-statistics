@@ -1,4 +1,4 @@
-use super::models::{Game, Tile};
+use super::models::Game;
 use crate::game::models::GamePro;
 use crawler::UMDGameItem;
 

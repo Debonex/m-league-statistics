@@ -445,6 +445,8 @@ dependencies = [
  "regex",
  "reqwest",
  "scraper",
+ "serde",
+ "serde_json",
  "simple_logger",
  "tokio",
 ]
